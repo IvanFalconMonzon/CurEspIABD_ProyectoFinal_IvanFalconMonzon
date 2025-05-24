@@ -1,0 +1,23 @@
+Dónde encontrar los archivos del proyecto:
+Para que entiendas mejor cómo está organizado este proyecto, te explico la ubicación de los archivos clave:
+
+El conjunto de datos (dataset):
+El conjunto de datos completo de imágenes (conocido como "dataset") no está disponible en GitHub. La razón es que son muchísimas imágenes, lo que hace que el archivo sea demasiado grande, incluso después de intentar comprimirlo.
+
+Por lo tanto, para acceder a todas las imágenes que se usaron en este proyecto, deberás ir a mi Google Drive. Allí encontrarás una carpeta llamada "dataset", que es donde está todo el material visual.
+
+La aplicación web:
+La aplicación web, es decir, el software que permite interactuar con el proyecto, se encuentra dentro de la carpeta llamada "HardVision". Esta carpeta contiene todos los archivos necesarios para ejecutar y usar la aplicación.
+
+Repositorio y enlaces:
+A continuación, encontrarás los enlaces relevantes para el proyecto.
+
+- Dataset inicial: https://universe.roboflow.com/gradresearch/gradresearch
+
+- Google Colab: https://colab.research.google.com/drive/11X6-vMe4TnmLKkDWmBzcQz4uRGPijMRp?usp=sharing
+
+- Google Drive: https://drive.google.com/drive/folders/1Xzf3wejBUWDtcBH4_ekeg6cCaAUSaqsC?usp=sharing
+
+- Github: https://github.com/IvanFalconMonzon/CurEspIABD_ProyectoFinal_IvanFalconMonzon.git
+
+- Presentación: https://www.canva.com/design/DAGoFF8b7GU/6S5vJ4ckhicu-QaonLDRpg/edit?utm_content=DAGoFF8b7GU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
