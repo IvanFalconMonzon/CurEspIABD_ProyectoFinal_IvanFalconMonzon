@@ -1,0 +1,436 @@
+/*
+ * Archivo: styles.css
+ * Descripción: Estilos CSS para la aplicación de detección de objetos YOLOv8.
+ * Autor: Iván Falcón Monzón - HardVision
+ * Fecha: Mayo 2025
+ * Colores: Tonalidades de azul marino oscuro con texto blanco y acentos en azul claro.
+ */
+
+/* Variables CSS para colores */
+:root {
+    --background-dark-navy: #1a242f;      /* Azul marino muy oscuro para el fondo principal */
+    --text-white: #FFFFFF;                /* Blanco puro para todo el texto principal */
+    --text-light-grey: #e0e0e0;           /* Blanco roto para texto secundario/sutil */
+    --accent-blue-bright: #4fc3f7;        /* Azul claro brillante para acentos y resaltados */
+    --primary-blue-medium: #3498db;       /* Azul medio para fondos de elementos interactivos (botones, pills) */
+    --border-subtle: #4a607a;             /* Azul grisáceo sutil para bordes */
+    --box-shadow-color: rgba(0, 0, 0, 0.4); /* Sombra más pronunciada para profundidad */
+    --primary-blue-medium-rgb: 52, 152, 219; /* RGB de --primary-blue-medium para rgba */
+    --white-shadow-color: rgba(255, 255, 255, 0.5); /* Color blanco para la sombra del logo */
+}
+
+/* Estilos Generales del Cuerpo */
+body {
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-dark-navy); /* Fondo azul marino oscuro */
+    color: var(--text-white); /* Color de texto principal en blanco */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+}
+
+/* Estilos para el selector de idioma */
+.language-switcher {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+}
+
+.language-switcher .flag-icon {
+    width: 24px;
+    height: auto;
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.language-switcher .flag-icon:hover {
+    transform: scale(1.15);
+    opacity: 0.95;
+}
+
+/* Estilos de Encabezados */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-top: 20px;
+}
+
+h1 {
+    color: var(--text-white);
+    font-size: 2.2em;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: 600;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+.author {
+    color: var(--text-light-grey);
+    font-size: 0.9em;
+    margin-bottom: 15px; /* Reducimos este margen si el logo va justo debajo */
+}
+
+/* Estilos para el contenedor del logo */
+.company-logo-container {
+    margin-top: 10px; /* Espacio entre el texto del autor y el logo */
+    margin-bottom: 30px; /* Espacio entre el logo y la siguiente sección */
+    text-align: center; /* Asegura que el logo se centre */
+}
+
+.company-logo {
+    max-width: 300px; /* AUMENTADO: Ajusta el ancho máximo para que sea más grande */
+    background-color: whitesmoke;
+    height: auto; /* Mantiene la proporción de la imagen */
+    display: block; /* Asegura que la imagen sea un bloque y se centre con margin auto */
+    margin: 0 auto; /* Centra el logo horizontalmente */
+    box-shadow: 0 0 15px var(--white-shadow-color); /* CAMBIO: Sombra blanca para que destaque */
+    border: 2px solid var(--text-white); /* CAMBIO: Borde blanco sutil, opcional */
+    border-radius: 8px; /* Un poco más de redondeo, opcional */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transición para interactividad */
+    margin-top: 40px;
+}
+
+.company-logo:hover {
+    transform: scale(1.05); /* Ligeramente más grande al pasar el ratón */
+    box-shadow: 0 0 25px var(--text-white); /* Sombra más intensa al pasar el ratón */
+}
+
+/* ... (tu CSS existente continúa sin cambios en esta sección) ... */
+
+/* Estilos para Contenedores Principales y Secciones */
+section {
+    background-color: var(--background-dark-navy);
+    padding: 30px;
+    margin: 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px var(--box-shadow-color);
+    width: 90%;
+    max-width: 1400px;
+    text-align: center;
+    border: 1px solid var(--border-subtle);
+    box-sizing: border-box;
+}
+
+h2 {
+    color: var(--text-white);
+    font-size: 2em;
+    border-bottom: 2px solid var(--accent-blue-bright);
+    padding-bottom: 10px;
+    display: inline-block;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+h3 {
+    color: var(--text-white);
+    font-size: 1.5em;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+/* Estilos del Separador */
+.separator {
+    border: none;
+    border-top: 3px dashed var(--border-subtle);
+    width: 60%;
+    margin: 40px auto;
+}
+
+/* --- Layout para Video y Conteo en Vivo --- */
+.live-detection-section .live-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    justify-content: flex-start;
+    margin-top: 20px;
+}
+
+.live-detection-section .video-container {
+    min-width: 400px;
+    max-width: 700px;
+    width: 95%;
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+    border: 3px solid var(--accent-blue-bright);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.live-detection-section .video-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.live-detection-section .counts-container {
+    min-width: 250px;
+    max-width: 700px;
+    width: 95%;
+    background-color: var(--background-dark-navy);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.live-detection-section .counts-container h3 {
+    text-align: center;
+    margin-top: 0;
+    font-size: 1.3em;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.live-detection-section .counts-container ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 0;
+    flex-grow: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.live-detection-section .counts-container li {
+    background-color: var(--primary-blue-medium);
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    min-width: 100px;
+    flex-basis: calc(33.33% - 24px);
+    box-sizing: border-box;
+    max-width: 180px;
+}
+
+.live-detection-section .counts-container .class-name {
+    font-weight: bold;
+    color: var(--text-white);
+    margin-bottom: 5px;
+}
+
+.live-detection-section .counts-container .class-count {
+    font-size: 1.2em;
+    color: var(--text-white);
+    font-weight: bold;
+}
+
+/* Estilos para el mensaje de actualización */
+.live-detection-section .counts-container .update-message {
+    font-size: 0.9em;
+    color: var(--text-light-grey);
+    margin-top: 20px;
+    font-style: italic;
+}
+
+/* --- Estilos para el Formulario de Subida y la Gráfica --- */
+.upload-section form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Estilos para ocultar el input de archivo */
+.hidden-file-input {
+    display: none;
+}
+
+.button {
+    background-color: var(--accent-blue-bright);
+    color: var(--text-white);
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.button:hover {
+    background-color: #37b0e0;
+    transform: translateY(-2px);
+}
+
+.button:active {
+    transform: translateY(0);
+}
+
+/* Contenedor principal para la imagen y la gráfica */
+.image-result-display {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border-subtle);
+    text-align: center;
+}
+
+.image-result-display .image-and-chart-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 30px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.image-result-display .processed-image-container {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    min-height: 300px;
+}
+
+.image-result-display .processed-image-container img {
+    max-width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    border: 3px solid var(--accent-blue-bright);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px var(--box-shadow-color);
+}
+
+.clickable-image-placeholder {
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.clickable-image-placeholder:hover {
+    border-color: var(--primary-blue-medium);
+    box-shadow: 0 0 15px rgba(var(--primary-blue-medium-rgb), 0.5);
+}
+
+.image-result-display .chart-container {
+    flex: 1;
+    min-width: 350px;
+    background-color: var(--background-dark-navy);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.image-result-display .chart-container h3 {
+    margin-top: 0;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 10px;
+    width: 100%;
+}
+
+#imageDetectionChart {
+    max-height: 450px;
+    min-height: 300px;
+    width: 100% !important;
+    margin-top: 15px;
+    flex-grow: 1;
+}
+
+#imageProcessingMessage {
+    font-size: 1.1em;
+    color: var(--text-light-grey);
+    margin-top: 15px;
+    font-style: italic;
+}
+
+/* Estilos Responsivos */
+@media (max-width: 900px) {
+    .live-detection-section .live-content-wrapper,
+    .image-result-display .image-and-chart-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .live-detection-section .video-container,
+    .live-detection-section .counts-container,
+    .image-result-display .processed-image-container,
+    .image-result-display .chart-container {
+        min-width: unset;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .live-detection-section .video-container {
+        padding-bottom: 56.25%;
+        height: 0;
+    }
+
+    .live-detection-section .counts-container {
+        padding-left: 15px;
+        padding-right: 15px;
+        box-sizing: border-box;
+    }
+
+    .live-detection-section .counts-container ul li {
+        font-size: 0.9em;
+        flex-basis: calc(50% - 24px);
+    }
+
+    h1 { font-size: 2.0em; }
+    h2 { font-size: 1.8em; }
+    h3 { font-size: 1.3em; }
+
+    /* Ajuste de logo en pantallas pequeñas */
+    .company-logo {
+        max-width: 180px; /* Un poco más pequeño en móviles si 250px es demasiado */
+    }
+}
+
+@media (max-width: 500px) {
+    section {
+        padding: 15px;
+        margin: 10px auto;
+    }
+    h1 { font-size: 1.6em; }
+    h2 { font-size: 1.5em; }
+    h3 { font-size: 1.2em; }
+    .button {
+        padding: 10px 15px;
+        font-size: 0.95em;
+    }
+    .live-detection-section .counts-container ul li {
+        flex-basis: calc(100% - 24px);
+        max-width: unset;
+    }
+    .company-logo {
+        max-width: 150px; /* Asegura que el logo no sea demasiado grande en pantallas muy pequeñas */
+    }
+}

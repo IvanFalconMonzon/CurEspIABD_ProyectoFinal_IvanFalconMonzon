@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HardVision</title>
+
+    <link rel="icon" href="{{ url_for('static', filename='logos/favicon.ico') }}" type="image/x-icon">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="language-switcher">
+        <a href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='flags/flag_es.png') }}" alt="Spanish" class="flag-icon">
+        </a>
+    </div>
+
+    <header>
+        <h1>Identification of hardware components using YOLO and predictive analysis</h1>
+        <div class="company-logo-container">
+            <img src="{{ url_for('static', filename='logos/logo.png') }}" alt="HardVision Logo" class="company-logo">
+        </div>
+        <p class="author">Developed by Iván Falcón Monzón - HardVision</p>
+    </header>
+
+    <section class="live-detection-section">
+        <h2>Live Stream and Global Count</h2>
+        <p>Figures update every 2 seconds.</p>
+        <div class="live-content-wrapper">
+            <div class="video-container">
+                <img src="{{ url_for('video') }}" width="640" height="480" alt="Live object detection stream">
+            </div>
+            <div class="counts-container">
+                <h3>Detected Object Count (stream accumulated)</h3>
+                <ul id="classCounts">
+                    {% for name, count in counts.items() %}
+                        <li>
+                            <span class="class-name">
+                                {% if name == 'desconocido' %}unknown{% else %}{{ name }}{% endif %}: {# Mapeo simple para 'desconocido' #}
+                            </span>
+                            <span id="count-{{ name }}" class="class-count">{{ count }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <hr class="separator">
+    
+    <section class="upload-section">
+        <h2>Upload an Image for Detection</h2>
+        <p>Upload an image to analyze it and view detections and a dedicated bar chart for that image.</p>
+        <form id="uploadForm" method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/*" required class="hidden-file-input" id="fileInput">
+        </form>
+
+        <div id="uploadAnotherButtonContainer" style="display:none; margin-top: 20px;">
+            <button id="uploadAnotherBtn" class="button">Upload and Detect</button>
+        </div>
+
+        <div id="imageResultDisplay" class="image-result-display">
+            <p id="imageProcessingMessage" style="display:none;">Processing image...</p>
+            <div class="image-and-chart-wrapper">
+                <div class="processed-image-container">
+                    <img id="processedImage"
+                         src="{{ url_for('static', filename='images/select.png') }}"
+                         alt="Selecciona una imagen"
+                         class="clickable-image-placeholder">
+                </div>
+                <div class="chart-container">
+                    <h3>Object Count Detected in the Image</h3>
+                    <canvas id="imageDetectionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // --- Live Class Count (Global) ---
+        async function fetchCounts() {
+            try {
+                const res = await fetch('/counts');
+                if (!res.ok) {
+                    throw new Error(`HTTP Error: ${res.status}`);
+                }
+                const data = await res.json();
+
+                const ul = document.getElementById('classCounts');
+                const currentCountsOnPage = {};
+                ul.querySelectorAll('li').forEach(li => {
+                    const spanId = li.querySelector('.class-count').id;
+                    const name = spanId.substring(6);
+                    currentCountsOnPage[name] = true;
+                });
+
+                for (let key in data) {
+                    let displayKey = key;
+                    if (key === 'desconocido') {
+                        displayKey = 'unknown';
+                    }
+                    let countElement = document.getElementById('count-' + key);
+                    if (countElement) {
+                        let currentClassNameSpan = countElement.previousElementSibling;
+                        if (currentClassNameSpan && currentClassNameSpan.innerText.replace(':', '') !== displayKey) {
+                             currentClassNameSpan.innerText = displayKey + ':';
+                        }
+                        if (countElement.innerText !== String(data[key])) {
+                            countElement.innerText = data[key];
+                        }
+                    } else {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span class="class-name">${displayKey}:</span> <span id="count-${key}" class="class-count">${data[key]}</span>`;
+                        ul.appendChild(li);
+                    }
+                    delete currentCountsOnPage[key];
+                }
+
+                for (let key in currentCountsOnPage) {
+                    const elementToRemove = document.getElementById('count-' + key);
+                    if (elementToRemove && elementToRemove.parentElement) {
+                        elementToRemove.parentElement.remove();
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error fetching class counts:", error);
+            }
+        }
+        setInterval(fetchCounts, 2000);
+
+        // --- Handling Image Uploads and Charts ---
+        const uploadForm = document.getElementById('uploadForm');
+        const processedImage = document.getElementById('processedImage');
+        const imageProcessingMessage = document.getElementById('imageProcessingMessage');
+        const imageDetectionChartCanvas = document.getElementById('imageDetectionChart');
+
+        let imageChart = null;
+
+        function updateChart(counts) {
+            const labels = Object.keys(counts).map(key => key === 'desconocido' ? 'unknown' : key); // Mapea 'desconocido' a 'unknown'
+            const data = Object.values(counts);
+
+            const filteredLabels = [];
+            const filteredData = [];
+            for (let i = 0; i < labels.length; i++) {
+                if (data[i] > 0) {
+                    filteredLabels.push(labels[i]);
+                    filteredData.push(data[i]);
+                }
+            }
+
+            // If no data after filtering, display "unknown: 1"
+            if (filteredData.length === 0 && counts['desconocido'] === 0) {
+                filteredLabels.push('unknown'); // Hardcoded 'unknown' for this case
+                filteredData.push(1);
+            } else if (filteredData.length === 0 && counts['desconocido'] > 0) {
+                filteredLabels.push('unknown');
+                filteredData.push(counts['desconocido']);
+            }
+
+
+            const backgroundColors = filteredLabels.map((label, index) => {
+                if (label === 'unknown') { // Compare with 'unknown'
+                    return 'rgba(255, 99, 132, 0.7)';
+                } else {
+                    const hue = (index * 137 + 50) % 360;
+                    return `hsla(${hue}, 70%, 60%, 0.7)`;
+                }
+            });
+            const borderColors = backgroundColors.map(color => color.replace('0.7', '1'));
+
+
+            const chartData = {
+                labels: filteredLabels,
+                datasets: [{
+                    label: 'Number of Detections',
+                    data: filteredData,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 1
+                }]
+            };
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: 'var(--text-color)',
+                            stepSize: 1,
+                            font: {
+                                size: 14
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'var(--text-color)',
+                            font: {
+                                size: 14
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    title: {
+                        display: false,
+                    }
+                }
+            };
+
+            if (imageChart) {
+                imageChart.data = chartData;
+                imageChart.options = chartOptions;
+                imageChart.update();
+            } else {
+                imageChart = new Chart(imageDetectionChartCanvas, {
+                    type: 'bar',
+                    data: chartData,
+                    options: chartOptions
+                });
+            }
+        }
+
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            imageProcessingMessage.style.display = 'block';
+            processedImage.style.display = 'none';
+            processedImage.src = '';
+            if (imageChart) {
+                imageChart.destroy();
+                imageChart = null;
+            }
+
+
+            const fileInput = uploadForm.querySelector('input[type="file"]');
+            if (fileInput.files.length === 0) {
+                alert("Please select an image to upload.");
+                imageProcessingMessage.style.display = 'none';
+                return;
+            }
+
+            const formData = new FormData(uploadForm);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({error: "Unknown server error"})); 
+                    throw new Error(`Error uploading image: ${errorData.error || response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.image_url) {
+                    processedImage.src = data.image_url;
+                    processedImage.style.display = 'block';
+                } else {
+                    console.error("Image URL not found in server response:", data);
+                    alert("Could not get processed image from server.");
+                }
+
+                if (data.image_counts) {
+                    // Si el backend envía las claves en español (desconocido),
+                    // el JS de la página en inglés las mapeará a 'unknown' para mostrar.
+                    updateChart(data.image_counts);
+                } else {
+                    console.warn("No object counts found for the uploaded image.");
+                    updateChart({'desconocido': 1});
+                }
+
+                await fetchCounts();
+
+            } catch (error) {
+                console.error("Error in image upload and processing:", error);
+                alert("An error occurred while processing the image: " + error.message);
+            } finally {
+                imageProcessingMessage.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
